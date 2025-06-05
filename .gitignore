@@ -1,0 +1,9 @@
+# Frontend .gitignore
+
+node_modules/
+dist/
+.env
+.env.*
+*.log
+.DS_Store
+.git_disabled/
