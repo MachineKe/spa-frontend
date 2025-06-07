@@ -35,7 +35,7 @@ export default function Team() {
             <div className="font-sans text-lg font-bold">James Mwangi</div>
             <div className="font-sans text-gold/80 text-sm mb-2">Lead Barber</div>
             <div className="font-sans text-gold/70 text-sm text-center">
-              With 15+ years of experience, James is a master of classic and modern cuts.
+              With 15+ years of experience, James is a master of classic and modern hair cuts.
             </div>
           </div>
         </>
