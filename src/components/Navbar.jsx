@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { FaChevronDown, FaSignOutAlt } from "react-icons/fa";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -20,8 +21,17 @@ export default function Navbar() {
   // Simple auth check: token in localStorage
   const isLoggedIn = !!localStorage.getItem("token");
 
+  // Example user info, replace with real user data if available
+  const user = {
+    name: "User",
+    avatar: ""
+  };
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
+    setDropdownOpen(false);
     navigate("/login");
   };
 
@@ -47,12 +57,34 @@ export default function Navbar() {
             </Link>
           ))}
           {isLoggedIn ? (
-            <button
-              onClick={handleLogout}
-              className="ml-4 bg-gold text-black font-bold px-4 py-1 rounded hover:bg-yellow-400 transition-colors"
-            >
-              Logout
-            </button>
+            <div className="relative flex items-center ml-4" tabIndex={0} onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) setDropdownOpen(false); }}>
+              <button
+                className="flex items-center gap-2 cursor-pointer px-2 py-1 rounded-full bg-neutral-900 hover:bg-yellow-400/10 transition focus:outline-none"
+                onClick={() => setDropdownOpen(open => !open)}
+                tabIndex={0}
+              >
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border-2 border-gold object-cover" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gold text-black flex items-center justify-center font-bold font-sans shadow">
+                    {user.name[0]}
+                  </div>
+                )}
+                <span className="text-gold font-sans font-semibold text-sm">{user.name}</span>
+                <FaChevronDown className="text-gold" />
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-32 w-44 bg-black border border-gold rounded-lg shadow-lg py-2 z-50 flex flex-col gap-1">
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
+                    onClick={handleLogout}
+                  >
+                    <FaSignOutAlt className="text-gold" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <Link
               to="/login"
@@ -92,15 +124,37 @@ export default function Navbar() {
               </Link>
             ))}
             {isLoggedIn ? (
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  handleLogout();
-                }}
-                className="mt-2 bg-gold text-black font-bold px-4 py-2 rounded hover:bg-yellow-400 transition-colors"
-              >
-                Logout
-              </button>
+              <div className="relative flex flex-col mt-2">
+                <button
+                  className="flex items-center gap-2 cursor-pointer px-2 py-2 rounded-full bg-neutral-900 hover:bg-gold/10 transition focus:outline-none"
+                  onClick={() => setDropdownOpen(open => !open)}
+                  tabIndex={0}
+                >
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border-2 border-gold object-cover" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gold text-black flex items-center justify-center font-bold font-sans shadow">
+                      {user.name[0]}
+                    </div>
+                  )}
+                  <span className="text-gold font-sans font-semibold text-sm">{user.name}</span>
+                  <FaChevronDown className="text-gold" />
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-12 w-44 bg-black border border-gold rounded-lg shadow-lg py-2 z-50 flex flex-col gap-1">
+                    <button
+                      className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      <FaSignOutAlt className="text-gold" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <Link
                 to="/login"

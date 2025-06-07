@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { apiFetch } from "../services/api";
+import { Link } from "react-router-dom";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -124,6 +125,14 @@ export default function Login() {
             {step === 1 ? "Login" : "Verify 2FA"}
           </button>
         </form>
+        <div className="mt-6 text-center">
+          <span className="text-gold/80 font-sans">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-gold underline hover:text-yellow-400 transition-colors">
+              Sign up
+            </Link>
+          </span>
+        </div>
       </div>
     </div>
   );

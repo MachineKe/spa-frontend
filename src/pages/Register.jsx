@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { apiFetch } from "../services/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const PLANS = [
   { value: "monthly", label: "Monthly (Annual Payment)" },
@@ -158,6 +158,14 @@ export default function Register() {
             {error}
           </div>
         )}
+        <div className="mt-6 text-center">
+          <span className="text-gold/80 font-sans">
+            Already have an account?{" "}
+            <Link to="/login" className="text-gold underline hover:text-yellow-400 transition-colors">
+              Login
+            </Link>
+          </span>
+        </div>
       </form>
     </div>
   );
