@@ -12,6 +12,7 @@ const employeeNavLinks = [
 export default function EmployeeDashboard() {
   const [section, setSection] = useState("payouts");
   const [user, setUser] = useState(null);
+  const [employeeId, setEmployeeId] = useState(null);
   const [payouts, setPayouts] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,16 +37,27 @@ export default function EmployeeDashboard() {
       return;
     }
     apiFetch("/auth/me", { token })
-      .then((res) => {
+      .then(async (res) => {
         setUser(res.user);
+        // Fetch employee record by email (self-service endpoint)
+        const empRes = await apiFetch(`/employees/by-email/${encodeURIComponent(res.user.email)}`, { token });
+        const employee = empRes.employee;
+        if (!employee) {
+          setError("Employee record not found for this user.");
+          setLoading(false);
+          return;
+        }
+        setEmployeeId(employee.id);
         return Promise.all([
-          apiFetch(`/employees/${res.user.id}/salary-history`, { token }),
-          apiFetch(`/employees/${res.user.id}/attendance`, { token }),
-          apiFetch(`/employees/${res.user.id}/leave-requests`, { token }),
-          apiFetch(`/employees/${res.user.id}/documents`, { token }),
+          apiFetch(`/employees/${employee.id}/salary-history`, { token }),
+          apiFetch(`/employees/${employee.id}/attendance`, { token }),
+          apiFetch(`/employees/${employee.id}/leave-requests`, { token }),
+          apiFetch(`/employees/${employee.id}/documents`, { token }),
         ]);
       })
-      .then(([salaryRes, attRes, leaveRes, docRes]) => {
+      .then((results) => {
+        if (!results) return;
+        const [salaryRes, attRes, leaveRes, docRes] = results;
         setPayouts(salaryRes.payouts || []);
         setAttendance(attRes.attendance || []);
         setLeaves(leaveRes.leaves || []);
@@ -60,10 +72,10 @@ export default function EmployeeDashboard() {
 
   const logAttendance = async (e) => {
     e.preventDefault();
-    if (!user) return;
+    if (!employeeId) return;
     setAttLoading(true);
     try {
-      await apiFetch(`/employees/${user.id}/attendance`, {
+      await apiFetch(`/employees/${employeeId}/attendance`, {
         method: "POST",
         body: JSON.stringify({
           date: new Date().toISOString().slice(0, 10),
@@ -73,7 +85,7 @@ export default function EmployeeDashboard() {
         token: localStorage.getItem("token"),
         headers: { "Content-Type": "application/json" },
       });
-      const attRes = await apiFetch(`/employees/${user.id}/attendance`, { token: localStorage.getItem("token") });
+      const attRes = await apiFetch(`/employees/${employeeId}/attendance`, { token: localStorage.getItem("token") });
       setAttendance(attRes.attendance || []);
       setAttNotes("");
     } catch {
@@ -84,10 +96,10 @@ export default function EmployeeDashboard() {
 
   const submitLeave = async (e) => {
     e.preventDefault();
-    if (!user) return;
+    if (!employeeId) return;
     setLeaveLoading(true);
     try {
-      await apiFetch(`/employees/${user.id}/leave-requests`, {
+      await apiFetch(`/employees/${employeeId}/leave-requests`, {
         method: "POST",
         body: JSON.stringify({
           startDate: leaveStart,
@@ -98,7 +110,7 @@ export default function EmployeeDashboard() {
         token: localStorage.getItem("token"),
         headers: { "Content-Type": "application/json" },
       });
-      const leaveRes = await apiFetch(`/employees/${user.id}/leave-requests`, { token: localStorage.getItem("token") });
+      const leaveRes = await apiFetch(`/employees/${employeeId}/leave-requests`, { token: localStorage.getItem("token") });
       setLeaves(leaveRes.leaves || []);
       setLeaveStart("");
       setLeaveEnd("");
@@ -111,19 +123,19 @@ export default function EmployeeDashboard() {
 
   const uploadDoc = async (e) => {
     e.preventDefault();
-    if (!user) return;
+    if (!employeeId) return;
     const file = e.target.file.files[0];
     if (!file) return;
     setDocLoading(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
-      await fetch(`/api/employees/${user.id}/documents`, {
+      await fetch(`/api/employees/${employeeId}/documents`, {
         method: "POST",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         body: formData,
       });
-      const docRes = await apiFetch(`/employees/${user.id}/documents`, { token: localStorage.getItem("token") });
+      const docRes = await apiFetch(`/employees/${employeeId}/documents`, { token: localStorage.getItem("token") });
       setDocs(docRes.docs || []);
       e.target.reset();
     } catch {
@@ -131,6 +143,8 @@ export default function EmployeeDashboard() {
     }
     setDocLoading(false);
   };
+
+
 
   return (
     <DashboardLayout
@@ -284,7 +298,7 @@ export default function EmployeeDashboard() {
                     </td>
                     <td className="py-2">
                       <a
-                        href={`/api/employees/${user.id}/documents/${d.id}`}
+                        href={`/api/employees/${employeeId}/documents/${d.id}`}
                         className="text-gold underline"
                         target="_blank"
                         rel="noopener noreferrer"

@@ -91,10 +91,12 @@ export default function Employees() {
     setStoreLoading((prev) => ({ ...prev, [empId]: true }));
     try {
       const token = localStorage.getItem("token");
-      await updateEmployeeStore(token, empId, storeId);
+      // Convert "" to null before sending to backend
+      const value = storeId === "" ? null : storeId;
+      await updateEmployeeStore(token, empId, value);
       setEmployees((prev) =>
         prev.map((emp) =>
-          emp.id === empId ? { ...emp, storeId } : emp
+          emp.id === empId ? { ...emp, storeId: value } : emp
         )
       );
     } catch {
