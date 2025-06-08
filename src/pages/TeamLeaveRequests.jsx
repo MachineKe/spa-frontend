@@ -21,10 +21,10 @@ export default function TeamLeaveRequests() {
       });
   }, []);
 
-  const handleAction = async (teamMemberId, requestId, status) => {
+  const handleAction = async (employeeId, requestId, status) => {
     setActionLoading((prev) => ({ ...prev, [requestId]: true }));
     try {
-      await apiFetch(`/teammember/${teamMemberId}/leave-requests/${requestId}`, {
+      await apiFetch(`/employee/${employeeId}/leave-requests/${requestId}`, {
         method: "PATCH",
         body: JSON.stringify({ status }),
         headers: { "Content-Type": "application/json" },
@@ -79,16 +79,16 @@ export default function TeamLeaveRequests() {
                           <button
                             className="bg-green-500 text-white px-2 py-1 rounded mr-2"
                             disabled={actionLoading[r.id]}
-                            onClick={() => handleAction(r.teamMemberId, r.id, "approved")}
+                            onClick={() => handleAction(r.employeeId, r.id, "approved")}
                           >
-                            Approve
+                                Approve
                           </button>
                           <button
                             className="bg-red-500 text-white px-2 py-1 rounded"
                             disabled={actionLoading[r.id]}
-                            onClick={() => handleAction(r.teamMemberId, r.id, "rejected")}
+                            onClick={() => handleAction(r.employeeId, r.id, "rejected")}
                           >
-                            Reject
+                                Reject
                           </button>
                         </>
                       )}
