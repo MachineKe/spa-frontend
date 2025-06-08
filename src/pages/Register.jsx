@@ -53,6 +53,16 @@ export default function Register() {
       setMessage("Registration successful! You can now log in as the business admin.");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
+      // Log error to browser console for debugging
+      console.error("Tenant registration error:", err);
+      // Optionally log form data (excluding passwords)
+      console.log("Registration form data:", {
+        businessName: form.businessName,
+        subdomain: form.subdomain,
+        plan: form.plan,
+        adminUsername: form.adminUsername,
+        adminEmail: form.adminEmail,
+      });
       setError(
         err?.error ||
           (err?.errors && err.errors[0]?.msg) ||
