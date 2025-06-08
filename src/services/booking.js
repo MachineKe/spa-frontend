@@ -19,3 +19,8 @@ export function updateBooking(token, id, data) {
 export function deleteBooking(token, id) {
   return apiFetch(`/bookings/${id}`, { method: "DELETE", token });
 }
+
+// Customer: List own bookings
+export function getMyBookings(token) {
+  return apiFetch("/booking/my", { token });
+}

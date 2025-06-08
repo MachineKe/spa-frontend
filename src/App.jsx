@@ -23,8 +23,71 @@ import Products from "./pages/Products";
 import StoresManagement from "./pages/StoresManagement";
 import Navbar from "./components/Navbar";
 import Register from "./pages/Register";
+import EmployeeRegister from "./pages/EmployeeRegister";
+import CustomerRegister from "./pages/CustomerRegister";
 
 import DashboardLayout from "./components/DashboardLayout";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "./services/auth";
+import { Navigate } from "react-router-dom";
+import CustomerDashboard from "./pages/CustomerDashboard";
+
+function EmployeeRoute({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      setUser(null);
+      return;
+    }
+    getCurrentUser(token)
+      .then((res) => {
+        setUser(res.user);
+        setLoading(false);
+      })
+      .catch(() => {
+        setUser(null);
+        setLoading(false);
+      });
+  }, [localStorage.getItem("token")]);
+
+  if (loading) return <div className="text-gold p-8">Loading...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  if ((user.role || "").toLowerCase() !== "employee") return <div className="text-red-500 p-8">Unauthorized</div>;
+  return children;
+}
+
+function CustomerRoute({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      setUser(null);
+      return;
+    }
+    getCurrentUser(token)
+      .then((res) => {
+        setUser(res.user);
+        setLoading(false);
+      })
+      .catch(() => {
+        setUser(null);
+        setLoading(false);
+      });
+  }, [localStorage.getItem("token")]);
+
+  if (loading) return <div className="text-gold p-8">Loading...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  if ((user.role || "").toLowerCase() !== "customer") return <div className="text-red-500 p-8">Unauthorized</div>;
+  return children;
+}
 
 function App() {
   return (
@@ -42,6 +105,8 @@ function App() {
         {/* Auth */}
         <Route path="/login" element={<><Navbar /><Login /></>} />
         <Route path="/register" element={<><Navbar /><Register /></>} />
+        <Route path="/employee-register" element={<><Navbar /><EmployeeRegister /></>} />
+        <Route path="/customer-register" element={<><Navbar /><CustomerRegister /></>} />
         {/* Tenant Admin Dashboard */}
         <Route path="/dashboard" element={<DashboardHome />} />
         <Route path="/dashboard/sales" element={<SalesDashboard />} />
@@ -57,6 +122,24 @@ function App() {
         <Route path="/superadmin/plans" element={<PlansManagement />} />
         <Route path="/superadmin/usage" element={<UsageMetrics />} />
         <Route path="/superadmin/features" element={<FeatureToggles />} />
+        {/* Employee Dashboard */}
+        <Route
+          path="/dashboard/employee"
+          element={
+            <EmployeeRoute>
+              <EmployeeDashboard />
+            </EmployeeRoute>
+          }
+        />
+        {/* Customer Dashboard */}
+        <Route
+          path="/dashboard/customer"
+          element={
+            <CustomerRoute>
+              <CustomerDashboard />
+            </CustomerRoute>
+          }
+        />
       </Routes>
     </Router>
   );

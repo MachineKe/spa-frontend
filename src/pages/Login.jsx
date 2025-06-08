@@ -38,7 +38,7 @@ export default function Login() {
           if (role === "superadmin") {
             window.location.href = "/superadmin";
           } else if (role === "employee" || role === "staff") {
-            window.location.href = "/self-service";
+            window.location.href = "/dashboard/employee";
           } else if (role === "admin" || role === "manager" || role === "tenant") {
             window.location.href = "/dashboard";
           } else {
@@ -59,7 +59,7 @@ export default function Login() {
           if (role === "superadmin") {
             window.location.href = "/superadmin";
           } else if (role === "employee" || role === "staff") {
-            window.location.href = "/self-service";
+            window.location.href = "/dashboard/employee";
           } else if (role === "admin" || role === "manager" || role === "tenant") {
             window.location.href = "/dashboard";
           } else {

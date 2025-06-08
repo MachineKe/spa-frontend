@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { apiFetch } from "../services/api";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 
 const PLANS = [
   { value: "monthly", label: "Monthly (Annual Payment)" },
@@ -21,6 +21,16 @@ export default function Register() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const registrationToken = params.get("token");
+
+  // Employee registration state
+  const [empPassword, setEmpPassword] = useState("");
+  const [empConfirm, setEmpConfirm] = useState("");
+  const [empLoading, setEmpLoading] = useState(false);
+  const [empMessage, setEmpMessage] = useState("");
+  const [empError, setEmpError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,6 +82,92 @@ export default function Register() {
     setLoading(false);
   };
 
+  // Employee registration form
+  if (registrationToken) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <form
+          className="bg-black/90 border border-gold rounded-lg p-8 shadow-lg w-full max-w-lg"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setEmpLoading(true);
+            setEmpMessage("");
+            setEmpError("");
+            if (empPassword !== empConfirm) {
+              setEmpError("Passwords do not match");
+              setEmpLoading(false);
+              return;
+            }
+            try {
+              await apiFetch("/auth/complete-registration", {
+                method: "POST",
+                body: { token: registrationToken, password: empPassword },
+                headers: { "Content-Type": "application/json" },
+              });
+              setEmpMessage("Registration complete! You can now log in.");
+              setTimeout(() => navigate("/login"), 2000);
+            } catch (err) {
+              setEmpError(
+                err?.error ||
+                  (err?.errors && err.errors[0]?.msg) ||
+                  "Registration failed"
+              );
+            }
+            setEmpLoading(false);
+          }}
+        >
+          <h1 className="text-3xl font-serif font-bold mb-6 text-gold">
+            Set Your Password
+          </h1>
+          <label className="block mb-2 font-sans text-gold">Password</label>
+          <input
+            type="password"
+            name="empPassword"
+            className="w-full mb-4 px-3 py-2 rounded border border-gold bg-black text-gold"
+            value={empPassword}
+            onChange={(e) => setEmpPassword(e.target.value)}
+            required
+          />
+          <label className="block mb-2 font-sans text-gold">Confirm Password</label>
+          <input
+            type="password"
+            name="empConfirm"
+            className="w-full mb-4 px-3 py-2 rounded border border-gold bg-black text-gold"
+            value={empConfirm}
+            onChange={(e) => setEmpConfirm(e.target.value)}
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-gold text-black font-bold py-2 px-4 rounded hover:bg-yellow-400 transition-colors"
+            disabled={empLoading}
+          >
+            {empLoading ? "Setting Password..." : "Set Password"}
+          </button>
+          {empMessage && (
+            <div className="mt-4 text-green-500 font-sans text-center">
+              {empMessage}
+            </div>
+          )}
+          {empError && (
+            <div className="mt-4 text-red-500 font-sans text-center">
+              {empError}
+            </div>
+          )}
+          <div className="mt-6 text-center">
+            <span className="text-gold/80 font-sans">
+              Already have an account?{" "}
+              <Link to="/login" className="text-gold underline hover:text-yellow-400 transition-colors">
+                Login
+              </Link>
+            </span>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  // Default: business registration form
   return (
     <div className="flex items-center justify-center min-h-screen bg-black">
       <form
