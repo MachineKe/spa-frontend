@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { apiFetch } from "../services/api";
+import { apiFetch, getEmployeeRegisterInfo } from "../services/api";
 
 export default function EmployeeRegister() {
   const [searchParams] = useSearchParams();
@@ -10,10 +10,31 @@ export default function EmployeeRegister() {
     username: "",
     phone: "",
     password: "",
+    role: "",
+    roleDescription: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [infoLoading, setInfoLoading] = useState(true);
+
+  useEffect(() => {
+    if (!token) return;
+    setInfoLoading(true);
+    getEmployeeRegisterInfo(token)
+      .then((info) => {
+        setForm((f) => ({
+          ...f,
+          username: info.username || "",
+          role: info.role || "",
+          roleDescription: info.roleDescription || "",
+        }));
+      })
+      .catch(() => {
+        setError("Invalid or expired registration link.");
+      })
+      .finally(() => setInfoLoading(false));
+  }, [token]);
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -32,6 +53,8 @@ export default function EmployeeRegister() {
           username: form.username,
           phone: form.phone,
           password: form.password,
+          role: form.role,
+          roleDescription: form.roleDescription,
         },
       });
       setSuccess("Registration successful! You can now log in.");
@@ -51,6 +74,16 @@ export default function EmployeeRegister() {
         <div className="bg-black/80 border border-gold rounded-lg p-8 shadow-lg">
           <h2 className="text-2xl font-bold mb-4 text-gold">Invalid Link</h2>
           <p className="text-gold">No registration token found in the link.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (infoLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="bg-black/80 border border-gold rounded-lg p-8 shadow-lg">
+          <h2 className="text-2xl font-bold mb-4 text-gold">Loading...</h2>
         </div>
       </div>
     );
@@ -85,6 +118,22 @@ export default function EmployeeRegister() {
             value={form.password}
             onChange={handleChange}
             required
+          />
+          <label className="text-gold font-sans">Role</label>
+          <input
+            className="bg-black border border-gold rounded px-2 py-1 text-gold"
+            name="role"
+            value={form.role}
+            readOnly
+            tabIndex={-1}
+          />
+          <label className="text-gold font-sans">Role Description</label>
+          <input
+            className="bg-black border border-gold rounded px-2 py-1 text-gold"
+            name="roleDescription"
+            value={form.roleDescription}
+            readOnly
+            tabIndex={-1}
           />
           {error && <div className="text-red-500">{error}</div>}
           {success && <div className="text-green-500">{success}</div>}

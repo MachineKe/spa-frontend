@@ -12,6 +12,10 @@ export function createServiceRequest(token, data) {
   return apiFetch("/api/servicerequests", { method: "POST", token, body: data });
 }
 
+export function getEmployeeRegisterInfo(token) {
+  return apiFetch("/auth/employee-register-info", { params: { token } });
+}
+
 export async function apiFetch(endpoint, { method = "GET", body, token, params } = {}) {
   let url = API_BASE_URL + endpoint;
   if (params) {

@@ -88,11 +88,12 @@ export default function Navbar() {
                   {user && user.role && (
                     <Link
                         to={{
-                          superadmin: "/superadmin",
-                          admin: "/dashboard",
-                          manager: "/dashboard/admin",
-                          employee: "/dashboard/employee",
-                          customer: "/dashboard/customer"
+                          superadmin: "/superadmin-dashboard",
+                          admin: "/manager-dashboard",
+                          manager: "/manager-dashboard",
+                          employee: "/employee-dashboard",
+                          customer: "/customer-dashboard",
+                          tenantadmin: "/tenant-admin-dashboard"
                         }[user.role.toLowerCase()] || "/"}
                       className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
                       onClick={() => setDropdownOpen(false)}
@@ -178,10 +179,12 @@ export default function Navbar() {
                     {user && user.role && (
                       <Link
                         to={{
-                          superadmin: "/superadmin",
-                          admin: "/dashboard",
-                          employee: "/dashboard/employee",
-                          customer: "/dashboard/customer"
+                          superadmin: "/superadmin-dashboard",
+                          admin: "/manager-dashboard",
+                          manager: "/manager-dashboard",
+                          employee: "/employee-dashboard",
+                          customer: "/customer-dashboard",
+                          tenantadmin: "/tenant-admin-dashboard"
                         }[user.role.toLowerCase()] || "/"}
                         className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
                         onClick={() => {

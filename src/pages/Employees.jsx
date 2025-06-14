@@ -217,6 +217,7 @@ export default function Employees() {
                     <th className="text-left py-2 px-2 whitespace-nowrap bg-black sticky left-0 z-10">Photo</th>
                     <th className="text-left py-2 px-2 whitespace-nowrap bg-black sticky left-16 z-10">Name</th>
                     <th className="text-left py-2 px-2 whitespace-nowrap bg-black sticky left-32 z-10">Role</th>
+                    <th className="text-left py-2 px-2 whitespace-nowrap">Role Description</th>
                     <th className="text-left py-2 px-2 whitespace-nowrap">Contact</th>
                     <th className="text-left py-2 px-2 whitespace-nowrap">Email</th>
                     <th className="text-left py-2 px-2 whitespace-nowrap">Store</th>
@@ -237,6 +238,7 @@ export default function Employees() {
                       </td>
                       <td className="py-2 px-2 whitespace-nowrap bg-black sticky left-16 z-0">{emp.name}</td>
                       <td className="py-2 px-2 whitespace-nowrap bg-black sticky left-32 z-0">{emp.role}</td>
+                      <td className="py-2 px-2 whitespace-nowrap">{emp.roleDescription || ""}</td>
                       <td className="py-2 px-2 whitespace-nowrap">{emp.contact}</td>
                       <td className="py-2 px-2 whitespace-nowrap">{emp.email}</td>
                       <td className="py-2 px-2 whitespace-nowrap">
@@ -502,12 +504,25 @@ onSubmit={async (e) => {
                 </div>
                 <div className="mb-3">
                   <label className="block text-gold mb-1">Role</label>
-                  <input
+                  <select
                     className="w-full px-3 py-2 rounded border border-gold bg-black text-gold"
-                    type="text"
                     value={addForm.role}
                     onChange={(e) => setAddForm((prev) => ({ ...prev, role: e.target.value }))}
                     required
+                  >
+                    <option value="">Select Role</option>
+                    <option value="employee">Employee</option>
+                    <option value="manager">Manager</option>
+                  </select>
+                </div>
+                <div className="mb-3">
+                  <label className="block text-gold mb-1">Role Description</label>
+                  <input
+                    className="w-full px-3 py-2 rounded border border-gold bg-black text-gold"
+                    type="text"
+                    value={addForm.roleDescription || ""}
+                    onChange={(e) => setAddForm((prev) => ({ ...prev, roleDescription: e.target.value }))}
+                    placeholder="e.g. Barber, Receptionist"
                   />
                 </div>
                 <div className="mb-3">
