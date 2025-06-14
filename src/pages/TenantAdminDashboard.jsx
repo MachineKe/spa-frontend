@@ -25,7 +25,7 @@ ChartJS.register(
   Legend
 );
 
-export default function DashboardHome() {
+export default function TenantAdminDashboard() {
   const [summary, setSummary] = useState(null);
   const [employees, setEmployees] = useState([]);
   const [products, setProducts] = useState([]);

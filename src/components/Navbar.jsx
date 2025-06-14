@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaChevronDown, FaSignOutAlt } from "react-icons/fa";
+import { getCurrentUser } from "../services/auth";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -21,13 +22,22 @@ export default function Navbar() {
   // Simple auth check: token in localStorage
   const isLoggedIn = !!localStorage.getItem("token");
 
-  // Example user info, replace with real user data if available
-  const user = {
-    name: "User",
-    avatar: ""
-  };
-
+  const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (isLoggedIn && token) {
+      getCurrentUser(token)
+        .then(res => {
+          if (res && res.user) setUser(res.user);
+        })
+        .catch(() => setUser(null));
+    } else {
+      setUser(null);
+    }
+    // eslint-disable-next-line
+  }, [isLoggedIn]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -63,18 +73,33 @@ export default function Navbar() {
                 onClick={() => setDropdownOpen(open => !open)}
                 tabIndex={0}
               >
-                {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border-2 border-gold object-cover" />
+                {user && user.avatar ? (
+                  <img src={user.avatar} alt={user.username || user.name || user.email || "User"} className="w-8 h-8 rounded-full border-2 border-gold object-cover" />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-gold text-black flex items-center justify-center font-bold font-sans shadow">
-                    {user.name[0]}
+                    {(user && (user.username || user.name || user.email)) ? (user.username || user.name || user.email)[0] : "U"}
                   </div>
                 )}
-                <span className="text-gold font-sans font-semibold text-sm">{user.name}</span>
+                <span className="text-gold font-sans font-semibold text-sm">{user ? (user.username || user.name || user.email) : "User"}</span>
                 <FaChevronDown className="text-gold" />
               </button>
               {dropdownOpen && (
                 <div className="absolute right-0 mt-32 w-44 bg-black border border-gold rounded-lg shadow-lg py-2 z-50 flex flex-col gap-1">
+                  {user && user.role && (
+                    <Link
+                        to={{
+                          superadmin: "/superadmin",
+                          admin: "/dashboard",
+                          manager: "/dashboard/admin",
+                          employee: "/dashboard/employee",
+                          customer: "/dashboard/customer"
+                        }[user.role.toLowerCase()] || "/"}
+                      className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <span>Dashboard</span>
+                    </Link>
+                  )}
                   <button
                     className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
                     onClick={handleLogout}
@@ -138,18 +163,35 @@ export default function Navbar() {
                   onClick={() => setDropdownOpen(open => !open)}
                   tabIndex={0}
                 >
-                  {user.avatar ? (
-                    <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border-2 border-gold object-cover" />
+                  {user && user.avatar ? (
+                    <img src={user.avatar} alt={user.username || user.name || user.email || "User"} className="w-8 h-8 rounded-full border-2 border-gold object-cover" />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gold text-black flex items-center justify-center font-bold font-sans shadow">
-                      {user.name[0]}
+                      {(user && (user.username || user.name || user.email)) ? (user.username || user.name || user.email)[0] : "U"}
                     </div>
                   )}
-                  <span className="text-gold font-sans font-semibold text-sm">{user.name}</span>
+                  <span className="text-gold font-sans font-semibold text-sm">{user ? (user.username || user.name || user.email) : "User"}</span>
                   <FaChevronDown className="text-gold" />
                 </button>
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-12 w-44 bg-black border border-gold rounded-lg shadow-lg py-2 z-50 flex flex-col gap-1">
+                    {user && user.role && (
+                      <Link
+                        to={{
+                          superadmin: "/superadmin",
+                          admin: "/dashboard",
+                          employee: "/dashboard/employee",
+                          customer: "/dashboard/customer"
+                        }[user.role.toLowerCase()] || "/"}
+                        className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          setMenuOpen(false);
+                        }}
+                      >
+                        <span>Dashboard</span>
+                      </Link>
+                    )}
                     <button
                       className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
                       onClick={() => {

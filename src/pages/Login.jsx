@@ -37,10 +37,16 @@ export default function Login() {
           const role = (res.role || (res.user && res.user.role) || "").toLowerCase();
           if (role === "superadmin") {
             window.location.href = "/superadmin";
+          } else if (role === "admin") {
+            window.location.href = "/dashboard";
+          } else if (role === "manager") {
+            window.location.href = "/dashboard/admin";
+          } else if (role === "tenant") {
+            window.location.href = "/dashboard";
           } else if (role === "employee" || role === "staff") {
             window.location.href = "/dashboard/employee";
-          } else if (role === "admin" || role === "manager" || role === "tenant") {
-            window.location.href = "/dashboard";
+          } else if (role === "customer") {
+            window.location.href = "/dashboard/customer";
           } else {
             window.location.href = "/dashboard";
           }
@@ -58,10 +64,16 @@ export default function Login() {
           const role = (res.role || (res.user && res.user.role) || "").toLowerCase();
           if (role === "superadmin") {
             window.location.href = "/superadmin";
+          } else if (role === "admin") {
+            window.location.href = "/dashboard";
+          } else if (role === "manager") {
+            window.location.href = "/dashboard/admin";
+          } else if (role === "tenant") {
+            window.location.href = "/dashboard";
           } else if (role === "employee" || role === "staff") {
             window.location.href = "/dashboard/employee";
-          } else if (role === "admin" || role === "manager" || role === "tenant") {
-            window.location.href = "/dashboard";
+          } else if (role === "customer") {
+            window.location.href = "/dashboard/customer";
           } else {
             window.location.href = "/dashboard";
           }

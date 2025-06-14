@@ -4,6 +4,7 @@ import { apiFetch } from "../services/api";
 
 const employeeNavLinks = [
   { to: "#payouts", label: "My Payouts", key: "payouts" },
+  { to: "#sales", label: "Sales", key: "sales" },
   { to: "#attendance", label: "Attendance", key: "attendance" },
   { to: "#documents", label: "Documents", key: "documents" },
   { to: "#leaves", label: "Leave Requests", key: "leaves" },
@@ -15,6 +16,19 @@ export default function EmployeeDashboard() {
   const [employeeId, setEmployeeId] = useState(null);
   const [payouts, setPayouts] = useState([]);
   const [attendance, setAttendance] = useState([]);
+  const [sales, setSales] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [stores, setStores] = useState([]);
+  const [saleForm, setSaleForm] = useState({
+    productId: "",
+    quantity: 1,
+    totalPrice: "",
+    storeId: "",
+    transactionId: ""
+  });
+  const [saleLoading, setSaleLoading] = useState(false);
+  const [saleError, setSaleError] = useState("");
+  const [saleSuccess, setSaleSuccess] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [leaves, setLeaves] = useState([]);
@@ -48,20 +62,27 @@ export default function EmployeeDashboard() {
           return;
         }
         setEmployeeId(employee.id);
+        // Fetch products, stores, and sales for this employee
         return Promise.all([
           apiFetch(`/employees/${employee.id}/salary-history`, { token }),
           apiFetch(`/employees/${employee.id}/attendance`, { token }),
           apiFetch(`/employees/${employee.id}/leave-requests`, { token }),
           apiFetch(`/employees/${employee.id}/documents`, { token }),
+          apiFetch(`/products`, { token }),
+          apiFetch(`/stores`, { token }),
+          apiFetch(`/saleslogs?employeeId=${employee.id}`, { token })
         ]);
       })
       .then((results) => {
         if (!results) return;
-        const [salaryRes, attRes, leaveRes, docRes] = results;
+        const [salaryRes, attRes, leaveRes, docRes, prodRes, storeRes, salesRes] = results;
         setPayouts(salaryRes.payouts || []);
         setAttendance(attRes.attendance || []);
         setLeaves(leaveRes.leaves || []);
         setDocs(docRes.docs || []);
+        setProducts(prodRes.products || []);
+        setStores(storeRes.stores || []);
+        setSales(salesRes.saleslogs || []);
         setLoading(false);
       })
       .catch(() => {
@@ -92,6 +113,50 @@ export default function EmployeeDashboard() {
       alert("Failed to log attendance");
     }
     setAttLoading(false);
+  };
+
+  const handleSaleFormChange = (e) => {
+    const { name, value } = e.target;
+    setSaleForm((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const submitSale = async (e) => {
+    e.preventDefault();
+    setSaleLoading(true);
+    setSaleError("");
+    setSaleSuccess("");
+    try {
+      const token = localStorage.getItem("token");
+      const res = await apiFetch(`/sales/record`, {
+        method: "POST",
+        body: JSON.stringify({
+          productId: saleForm.productId,
+          quantity: Number(saleForm.quantity),
+          totalPrice: Number(saleForm.totalPrice),
+          storeId: saleForm.storeId,
+          transactionId: saleForm.transactionId
+        }),
+        token,
+        headers: { "Content-Type": "application/json" }
+      });
+      setSaleSuccess("Sale recorded and pending approval.");
+      setSaleForm({
+        productId: "",
+        quantity: 1,
+        totalPrice: "",
+        storeId: "",
+        transactionId: ""
+      });
+      // Refresh sales
+      const salesRes = await apiFetch(`/saleslogs?employeeId=${employeeId}`, { token });
+      setSales(salesRes.saleslogs || []);
+    } catch (err) {
+      setSaleError("Failed to record sale");
+    }
+    setSaleLoading(false);
   };
 
   const submitLeave = async (e) => {
@@ -152,15 +217,20 @@ export default function EmployeeDashboard() {
         ...s,
         to: "#" + s.key,
         label: (
-          <span
+          <button
+            type="button"
+            className={`block w-full text-left px-2 py-2 rounded font-sans transition-colors ${
+              section === s.key
+                ? "bg-black/80 text-gold font-bold border-l-4 border-gold"
+                : "bg-black/80 text-gold hover:text-yellow-400 hover:bg-gold/10"
+            }`}
             style={{
-              fontWeight: section === s.key ? "bold" : "normal",
-              color: section === s.key ? "#FFD700" : undefined,
+              textDecoration: "none",
             }}
             onClick={() => setSection(s.key)}
           >
             {s.label}
-          </span>
+          </button>
         ),
         onClick: () => setSection(s.key),
       }))}
@@ -192,6 +262,135 @@ export default function EmployeeDashboard() {
                     <td className="py-2">Ksh {p.amount?.toLocaleString() ?? 0}</td>
                     <td className="py-2">{p.type}</td>
                     <td className="py-2">{p.notes}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {/* Commission summary */}
+          <div className="mt-4">
+            <h3 className="text-lg font-serif font-semibold mb-2">Commission from Sales</h3>
+            <div className="text-gold/90 font-sans">
+              Total Commission Earned: Ksh{" "}
+              {sales
+                .filter((s) => s.status === "approved")
+                .reduce((sum, s) => sum + (s.commissionAmount || 0), 0)
+                .toLocaleString()}
+            </div>
+          </div>
+        </section>
+      )}
+      {section === "sales" && (
+        <section className="mb-8">
+          <h2 className="text-2xl font-serif font-semibold mb-4">Record a Sale</h2>
+          <form className="mb-6 flex flex-col md:flex-row gap-4 items-end" onSubmit={submitSale}>
+            <div>
+              <label className="block font-sans mb-1">Product</label>
+              <select
+                className="bg-black border border-gold rounded px-2 py-1 text-gold"
+                name="productId"
+                value={saleForm.productId}
+                onChange={handleSaleFormChange}
+                required
+              >
+                <option value="">Select product</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block font-sans mb-1">Quantity</label>
+              <input
+                type="number"
+                min="1"
+                className="bg-black border border-gold rounded px-2 py-1 text-gold"
+                name="quantity"
+                value={saleForm.quantity}
+                onChange={handleSaleFormChange}
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-sans mb-1">Total Price</label>
+              <input
+                type="number"
+                min="0"
+                className="bg-black border border-gold rounded px-2 py-1 text-gold"
+                name="totalPrice"
+                value={saleForm.totalPrice}
+                onChange={handleSaleFormChange}
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-sans mb-1">Store</label>
+              <select
+                className="bg-black border border-gold rounded px-2 py-1 text-gold"
+                name="storeId"
+                value={saleForm.storeId}
+                onChange={handleSaleFormChange}
+                required
+              >
+                <option value="">Select store</option>
+                {stores.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block font-sans mb-1">Transaction ID</label>
+              <input
+                type="text"
+                className="bg-black border border-gold rounded px-2 py-1 text-gold"
+                name="transactionId"
+                value={saleForm.transactionId}
+                onChange={handleSaleFormChange}
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="bg-gold text-black font-bold py-2 px-4 rounded hover:bg-yellow-400 transition-colors"
+              disabled={saleLoading}
+            >
+              {saleLoading ? "Recording..." : "Record Sale"}
+            </button>
+          </form>
+          {saleError && <div className="text-red-500 mb-2">{saleError}</div>}
+          {saleSuccess && <div className="text-green-500 mb-2">{saleSuccess}</div>}
+          <h3 className="text-lg font-serif font-semibold mb-2">My Sales</h3>
+          {sales.length === 0 ? (
+            <div className="text-gold/80 font-sans">No sales recorded yet.</div>
+          ) : (
+            <table className="w-full text-gold/90 font-sans mb-8">
+              <thead>
+                <tr>
+                  <th className="text-left py-2">Date</th>
+                  <th className="text-left py-2">Product</th>
+                  <th className="text-left py-2">Quantity</th>
+                  <th className="text-left py-2">Total</th>
+                  <th className="text-left py-2">Store</th>
+                  <th className="text-left py-2">Transaction ID</th>
+                  <th className="text-left py-2">Status</th>
+                  <th className="text-left py-2">Commission</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sales.map((s) => (
+                  <tr key={s.id}>
+                    <td className="py-2">{s.soldAt ? new Date(s.soldAt).toLocaleDateString() : "-"}</td>
+                    <td className="py-2">{products.find((p) => p.id === s.productId)?.name || s.productId}</td>
+                    <td className="py-2">{s.quantity}</td>
+                    <td className="py-2">Ksh {s.totalPrice?.toLocaleString() ?? 0}</td>
+                    <td className="py-2">{stores.find((st) => st.id === s.storeId)?.name || s.storeId}</td>
+                    <td className="py-2">{s.transactionId}</td>
+                    <td className="py-2">{s.status}</td>
+                    <td className="py-2">{s.status === "approved" ? `Ksh ${s.commissionAmount?.toLocaleString()}` : "-"}</td>
                   </tr>
                 ))}
               </tbody>

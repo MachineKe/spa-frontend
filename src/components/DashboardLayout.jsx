@@ -31,11 +31,21 @@ export default function DashboardLayout({ children, navLinks = defaultNavLinks }
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Example user info, replace with real user data if available
-  const user = {
-    name: "Admin",
-    avatar: ""
-  };
+  // Fetch real user info from token/service
+  const [user, setUser] = useState({ name: "Admin", avatar: "" });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      import("../services/auth").then(mod => {
+        mod.getCurrentUser(token)
+          .then(res => {
+            if (res && res.user) setUser(res.user);
+          })
+          .catch(() => setUser({ name: "Admin", avatar: "" }));
+      });
+    }
+  }, []);
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-black text-gold">
@@ -53,7 +63,7 @@ export default function DashboardLayout({ children, navLinks = defaultNavLinks }
                 <Link
                   key={link.to}
                   to={link.to}
-                  className="font-sans px-2 py-2 rounded text-gold hover:text-yellow-400 hover:bg-gold/10 transition-colors"
+                  className="block w-full font-sans px-2 py-2 rounded text-gold hover:text-yellow-400 hover:bg-gold/10 transition-colors"
                   style={{ textDecoration: "none" }}
                 >
                   {link.label}
@@ -71,7 +81,7 @@ export default function DashboardLayout({ children, navLinks = defaultNavLinks }
                   <Link
                     key={link.to}
                     to={link.to}
-                    className="font-sans px-2 py-2 rounded text-gold hover:text-yellow-400 hover:bg-gold/10 transition-colors"
+                    className="block w-full font-sans px-2 py-2 rounded text-gold hover:text-yellow-400 hover:bg-gold/10 transition-colors"
                     style={{ textDecoration: "none" }}
                     onClick={() => setSidebarOpen(false)}
                   >

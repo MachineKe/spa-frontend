@@ -80,8 +80,17 @@ export default function CustomerDashboard() {
       });
   }, []);
 
+  const customerNavLinks = [
+    { to: "/dashboard/customer", label: "Dashboard" },
+    { to: "/dashboard/customer", label: "Bookings" },
+    { to: "/dashboard/customer", label: "Purchases" },
+    { to: "/dashboard/customer", label: "Service Requests" },
+    { to: "/dashboard/customer", label: "Profile" },
+    { to: "/dashboard/customer", label: "Support" }
+  ];
+
   return (
-    <DashboardLayout>
+    <DashboardLayout navLinks={customerNavLinks}>
       <div className="p-6">
         <h1 className="text-3xl font-serif font-bold text-gold mb-6">Customer Dashboard</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

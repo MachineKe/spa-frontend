@@ -8,7 +8,8 @@ import Booking from "./pages/Booking";
 import Contact from "./pages/Contact";
 import GiftCards from "./pages/GiftCards";
 import Login from "./pages/Login";
-import DashboardHome from "./pages/DashboardHome";
+import TenantAdminDashboard from "./pages/TenantAdminDashboard";
+import ManagerDashboard from "./pages/ManagerDashboard";
 import SalesDashboard from "./pages/SalesDashboard";
 import Employees from "./pages/Employees";
 import Inventory from "./pages/Inventory";
@@ -108,7 +109,8 @@ function App() {
         <Route path="/employee-register" element={<><Navbar /><EmployeeRegister /></>} />
         <Route path="/customer-register" element={<><Navbar /><CustomerRegister /></>} />
         {/* Tenant Admin Dashboard */}
-        <Route path="/dashboard" element={<DashboardHome />} />
+        <Route path="/dashboard" element={<TenantAdminDashboard />} />
+        <Route path="/dashboard/admin" element={<ManagerDashboard />} />
         <Route path="/dashboard/sales" element={<SalesDashboard />} />
         <Route path="/dashboard/employees" element={<Employees />} />
         <Route path="/dashboard/inventory" element={<Inventory />} />

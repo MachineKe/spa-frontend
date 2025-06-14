@@ -32,15 +32,20 @@ export default function SuperAdminDashboard() {
         to: "#"+s.key,
         // Highlight active section
         label: (
-          <span
+          <button
+            type="button"
+            className={`block w-full text-left px-2 py-2 rounded font-sans transition-colors ${
+              section === s.key
+                ? "bg-black/80 text-gold font-bold border-l-4 border-gold"
+                : "bg-black/80 text-gold hover:text-yellow-400 hover:bg-gold/10"
+            }`}
             style={{
-              fontWeight: section === s.key ? "bold" : "normal",
-              color: section === s.key ? "#FFD700" : undefined,
+              textDecoration: "none",
             }}
             onClick={() => setSection(s.key)}
           >
             {s.label}
-          </span>
+          </button>
         ),
         onClick: () => setSection(s.key),
       }))}

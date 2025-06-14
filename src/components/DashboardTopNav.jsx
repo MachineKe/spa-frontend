@@ -59,13 +59,15 @@ export default function DashboardTopNav({ onSidebarToggle, user = { name: "Admin
           tabIndex={0}
         >
           {user.avatar ? (
-            <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border-2 border-yellow-400 object-cover" />
+            <img src={user.avatar} alt={user.username || user.name || user.email || "User"} className="w-8 h-8 rounded-full border-2 border-yellow-400 object-cover" />
           ) : (
             <div className="w-8 h-8 rounded-full bg-yellow-400 text-black flex items-center justify-center font-bold font-sans shadow">
-              {user.name[0]}
+              {(user && (user.username || user.name || user.email)) ? (user.username || user.name || user.email)[0] : "U"}
             </div>
           )}
-          <span className="text-yellow-400 font-sans font-semibold text-sm md:text-base">{user.name}</span>
+          <span className="text-yellow-400 font-sans font-semibold text-sm md:text-base">
+            {user && (user.username || user.name || user.email) ? (user.username || user.name || user.email) : "User"}
+          </span>
           <FaChevronDown className="text-yellow-400" />
         </button>
         {/* Dropdown menu */}
