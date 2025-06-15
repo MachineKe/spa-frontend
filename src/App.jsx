@@ -110,7 +110,7 @@ function App() {
         <Route path="/customer-register" element={<><Navbar /><CustomerRegister /></>} />
         {/* Tenant Admin Dashboard */}
         <Route path="/dashboard" element={<TenantAdminDashboard />} />
-        <Route path="/dashboard/admin" element={<ManagerDashboard />} />
+        <Route path="/dashboard/manager" element={<ManagerDashboard />} />
         <Route path="/dashboard/sales" element={<SalesDashboard />} />
         <Route path="/dashboard/employees" element={<Employees />} />
         <Route path="/dashboard/inventory" element={<Inventory />} />

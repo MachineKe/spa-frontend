@@ -89,8 +89,8 @@ export default function Navbar() {
                     <Link
                         to={{
                           superadmin: "/superadmin-dashboard",
-                          admin: "/manager-dashboard",
-                          manager: "/manager-dashboard",
+                          admin: "/dashboard/manager",
+                          manager: "/dashboard/manager",
                           employee: "/employee-dashboard",
                           customer: "/customer-dashboard",
                           tenantadmin: "/tenant-admin-dashboard"
@@ -179,12 +179,12 @@ export default function Navbar() {
                     {user && user.role && (
                       <Link
                         to={{
-                          superadmin: "/superadmin-dashboard",
-                          admin: "/manager-dashboard",
-                          manager: "/manager-dashboard",
-                          employee: "/employee-dashboard",
-                          customer: "/customer-dashboard",
-                          tenantadmin: "/tenant-admin-dashboard"
+                        superadmin: "/superadmin-dashboard",
+                        admin: "/dashboard/manager",
+                        manager: "/dashboard/manager",
+                        employee: "/employee-dashboard",
+                        customer: "/customer-dashboard",
+                        tenantadmin: "/tenant-admin-dashboard"
                         }[user.role.toLowerCase()] || "/"}
                         className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
                         onClick={() => {
