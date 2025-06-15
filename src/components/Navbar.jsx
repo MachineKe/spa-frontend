@@ -86,15 +86,16 @@ export default function Navbar() {
               {dropdownOpen && (
                 <div className="absolute right-0 mt-32 w-44 bg-black border border-gold rounded-lg shadow-lg py-2 z-50 flex flex-col gap-1">
                   {user && user.role && (
-                    <Link
+<Link
                         to={{
-                          superadmin: "/superadmin-dashboard",
-                          admin: "/dashboard/manager",
-                          manager: "/dashboard/manager",
-                          employee: "/employee-dashboard",
-                          customer: "/customer-dashboard",
-                          tenantadmin: "/tenant-admin-dashboard"
-                        }[user.role.toLowerCase()] || "/"}
+                          superadmin: "/superadmin",
+                          admin: "/dashboard",
+                          manager: "/dashboard/admin",
+                          tenant: "/dashboard",
+                          employee: "/dashboard/employee",
+                          staff: "/dashboard/employee",
+                          customer: "/dashboard/customer"
+                        }[user.role.toLowerCase()] || "/dashboard"}
                       className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
                       onClick={() => setDropdownOpen(false)}
                     >
@@ -177,15 +178,16 @@ export default function Navbar() {
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-12 w-44 bg-black border border-gold rounded-lg shadow-lg py-2 z-50 flex flex-col gap-1">
                     {user && user.role && (
-                      <Link
+<Link
                         to={{
-                        superadmin: "/superadmin-dashboard",
-                        admin: "/dashboard/manager",
-                        manager: "/dashboard/manager",
-                        employee: "/employee-dashboard",
-                        customer: "/customer-dashboard",
-                        tenantadmin: "/tenant-admin-dashboard"
-                        }[user.role.toLowerCase()] || "/"}
+                          superadmin: "/superadmin",
+                          admin: "/dashboard",
+                          manager: "/dashboard/admin",
+                          tenant: "/dashboard",
+                          employee: "/dashboard/employee",
+                          staff: "/dashboard/employee",
+                          customer: "/dashboard/customer"
+                        }[user.role.toLowerCase()] || "/dashboard"}
                         className="flex items-center gap-2 px-4 py-2 text-gold hover:bg-gold/10 rounded transition text-left bg-black"
                         onClick={() => {
                           setDropdownOpen(false);
